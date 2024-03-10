@@ -131,9 +131,7 @@ class EnSF:
         else:
             score_x = -( self.scalefact*xt - obs)/obs_sigma**2 * self.scalefact #self.scalefact*
             #score_x = -( xt - obs)/obs_sigma**2 #hxens only
-        #print(score_x.size())
         tau = self.g_tau(t)
-        #print(score_x)
         return tau*score_x
 
     def state_update_hxens(self,x_input,state_target_input, obs_input):
@@ -277,9 +275,7 @@ class EnSF:
         
         x_state_temp = (x_state - x_state.mean(dim=0)) * (std_x_state/x_state.std(dim=0) )  + x_state.mean(dim=0)
         if (x_state_temp.std() > (1.5 * init_std_x_state)).any():
-            #print('before',x_state.std(dim=0))
             x_state = (x_state - x_state.mean(dim=0)) * (init_std_x_state/x_state.std(dim=0) )  + x_state.mean(dim=0)
-            #print('after',x_state.std(dim=0))
         else:
             x_state =  x_state_temp
         ''''''
@@ -332,19 +328,18 @@ class EnSF:
 
         # generate posterior sample
         x_state = self.reverse_SDE(obs=obs,x0=x_state,time_steps=euler_steps,obs_sigma = temp_obs_sigma)
-        #print(x_state.mean(dim=0))
         x_state = x_state * std_x_state  + mean_x_state 
         x_out = x_state
         # get state estimates
         x_est = torch.mean(x_state,dim=0)
 
-        #'''
+
         x_state_temp = (x_state - x_state.mean(dim=0)) * (std_x_state/x_state.std(dim=0) )  + x_state.mean(dim=0)
         if (x_state_temp.std() > (1.5 * init_std_x_state)).any():
             x_state = (x_state - x_state.mean(dim=0)) * (init_std_x_state/x_state.std(dim=0) )  + x_state.mean(dim=0)
         else:
             x_state =  x_state_temp
-        #'''
+
         # get rmse
         rmse_temp = torch.sqrt(torch.mean((x_est - state_target)**2)).item()
 
